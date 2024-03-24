@@ -63,8 +63,6 @@ class TestInlineMarkdown(unittest.TestCase):
                 split_nodes_delimiter(input, delim, type)
             except ValueError:
                 failed = True
-            print(input)
-            print(failed)
             self.assertEqual(failed, True)
 
     def test_split_node_starting_with_delimiter(self):
