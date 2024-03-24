@@ -46,6 +46,24 @@ def text_node_to_html_node(text_node):
     return LeafNode(tag, value, props)
 
 
+def text_to_textnodes(text):
+    nodes = [TextNode(text, "text")]
+    nodes = split_nodes_links(nodes)
+    nodes = split_nodes_images(nodes)
+    types = [
+        ("**", "bold"),
+        ("*", "italic"),
+        ("`", "code"),
+    ]
+    for delim, type in types:
+        try:
+            nodes = split_nodes_delimiter(nodes, delim, type)
+        except ValueError as e:
+            # Fallback on error: Just keep trying to parse, but print error
+            print(e)
+    return nodes
+
+
 def split_nodes_links(nodes):
     res = []
     for n in nodes:

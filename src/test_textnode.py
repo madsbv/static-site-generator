@@ -7,6 +7,7 @@ from textnode import (
     split_nodes_links,
     text_node_to_html_node,
     split_nodes_delimiter,
+    text_to_textnodes,
 )
 from htmlnode import LeafNode
 
@@ -176,6 +177,22 @@ class TestTextNode(unittest.TestCase):
             TextNode("another", "link", "https://www.example.com/another"),
         ]
         self.assertEqual(res, expected)
+
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![image](https://i.imgur.com/zjjcJKZ.png) and a [link](https://boot.dev)"
+        expected = [
+            TextNode("This is ", "text"),
+            TextNode("text", "bold"),
+            TextNode(" with an ", "text"),
+            TextNode("italic", "italic"),
+            TextNode(" word and a ", "text"),
+            TextNode("code block", "code"),
+            TextNode(" and an ", "text"),
+            TextNode("image", "image", "https://i.imgur.com/zjjcJKZ.png"),
+            TextNode(" and a ", "text"),
+            TextNode("link", "link", "https://boot.dev"),
+        ]
+        self.assertEqual(text_to_textnodes(text), expected)
 
 
 if __name__ == "__main__":
