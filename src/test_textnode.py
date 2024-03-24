@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 import unittest
-import pdb
 
-from textnode import TextNode, text_node_to_html_node, split_nodes_delimiter
+from textnode import (
+    TextNode,
+    split_nodes_images,
+    split_nodes_links,
+    text_node_to_html_node,
+    split_nodes_delimiter,
+)
 from htmlnode import LeafNode
 
 
@@ -125,7 +130,52 @@ class TestTextNode(unittest.TestCase):
         expected = [TextNode("This", "code"), TextNode(" starts with delim", "text")]
         self.assertEqual(split_node, expected)
 
-    # TODO: Write more tests, particularly in the nested case, for mismatched delims, maybe for text that starts with delims
+    def test_split_nodes_images(self):
+        image_node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and ![another](https://i.imgur.com/dfsdkjfd.png)",
+            "text",
+        )
+        link_node = TextNode(
+            "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)",
+            "text",
+        )
+        res = split_nodes_images([image_node, link_node])
+        expected = [
+            TextNode("This is text with an ", "text"),
+            TextNode("image", "image", "https://i.imgur.com/zjjcJKZ.png"),
+            TextNode(" and ", "text"),
+            TextNode("another", "image", "https://i.imgur.com/dfsdkjfd.png"),
+            TextNode(
+                "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)",
+                "text",
+            ),
+        ]
+        self.assertEqual(res, expected)
+
+    def test_split_nodes_links(self):
+        image_node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and ![another](https://i.imgur.com/dfsdkjfd.png)",
+            "text",
+        )
+        link_node = TextNode(
+            "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)",
+            "text",
+        )
+        res = split_nodes_links([image_node, link_node])
+        expected = [
+            TextNode(
+                "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and ![another](https://i.imgur.com/dfsdkjfd.png)",
+                "text",
+            ),
+            TextNode(
+                "This is text with a ",
+                "text",
+            ),
+            TextNode("link", "link", "https://www.example.com"),
+            TextNode(" and ", "text"),
+            TextNode("another", "link", "https://www.example.com/another"),
+        ]
+        self.assertEqual(res, expected)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+from htmlnode import LeafNode
+from src.extract import extract_markdown_images, extract_markdown_links
+
+
 class TextNode:
     def __init__(self, text, text_type=None, url=None):
         self.text = text
@@ -14,9 +18,6 @@ class TextNode:
 
     def __repr__(self):
         return f"TextNode({self.text}, {self.text_type}, {self.url})"
-
-
-from htmlnode import LeafNode
 
 
 def text_node_to_html_node(text_node):
@@ -43,6 +44,46 @@ def text_node_to_html_node(text_node):
         props = {"src": text_node.url, "alt": text_node.text}
         value = ""
     return LeafNode(tag, value, props)
+
+
+def split_nodes_links(nodes):
+    res = []
+    for n in nodes:
+        if n.text_type != "text":
+            res.append(n)
+            continue
+        images = extract_markdown_links(n.text)
+        if len(images) == 0:
+            res.append(n)
+            continue
+        remaining = n.text
+        for desc, link in images:
+            before, remaining = remaining.split(f"[{desc}]({link})")
+            res.append(TextNode(before, "text"))
+            res.append(TextNode(desc, "link", link))
+        if len(remaining) != 0:
+            res.append(TextNode(remaining, "text"))
+    return res
+
+
+def split_nodes_images(nodes):
+    res = []
+    for n in nodes:
+        if n.text_type != "text":
+            res.append(n)
+            continue
+        images = extract_markdown_images(n.text)
+        if len(images) == 0:
+            res.append(n)
+            continue
+        remaining = n.text
+        for desc, link in images:
+            before, remaining = remaining.split(f"![{desc}]({link})")
+            res.append(TextNode(before, "text"))
+            res.append(TextNode(desc, "image", link))
+        if len(remaining) != 0:
+            res.append(TextNode(remaining, "text"))
+    return res
 
 
 # NOTE: If the delimiters are mismatched, raises `ValueError`.
