@@ -6,6 +6,14 @@ from htmlnode import ParentNode, LeafNode
 from inline_markdown import text_to_textnodes
 
 
+# We're not validating that there's only one h1 header. Should we?
+def extract_title(md):
+    for l in md.splitlines():
+        if l.startswith("# "):
+            return l[2:]
+    raise ValueError("Missing h1 header")
+
+
 def markdown_to_html_node(text):
     blocks = markdown_to_blocks(text)
     outer = ParentNode("div", [])
