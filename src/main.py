@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
-
-from textnode import TextNode
-from htmlnode import HTMLNode
+import os
+import shutil
 
 
 def main():
-    t = TextNode("text", "type", "example.com")
-    print(t)
-    node = HTMLNode("a", "example.com", None, {"href": "boot.dev", "target": "_blank"})
-    print(node.props_to_html())
-    print(node)
+    copy_dir("static", "public")
+
+
+def copy_dir(src, dst):
+    # We only recurse into each directoy once, so removing here is valid
+    if os.path.exists(dst):
+        shutil.rmtree(dst)
+    os.mkdir(dst)
+    for entry in os.listdir(src):
+        from_path = os.path.join(src, entry)
+        to_path = os.path.join(dst, entry)
+        if os.path.isfile(from_path):
+            shutil.copy(from_path, to_path)
+        if os.path.isdir(from_path):
+            copy_dir(from_path, to_path)
 
 
 if __name__ == "__main__":
