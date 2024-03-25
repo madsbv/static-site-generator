@@ -18,21 +18,30 @@ class HTMLNode:
         return string
 
     def __repr__(self):
-        return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})"
+        return f'HTMLNode("""{self.tag}""", """{self.value}""", {self.children}, {self.props})'
 
     def __eq__(self, other):
-        return (
+        result = (
             self.tag == other.tag
             and self.value == other.value
             and self.children == other.children
             and self.props == other.props
         )
+        if not result:
+            print("Self:")
+            print(self)
+            print("Other:")
+            print(other)
+        return result
 
 
 # TODO: tag should really be optional, but that requires refactoring and disagrees with the boot.dev examples and solutions.
 class LeafNode(HTMLNode):
     def __init__(self, tag, value, props=None):
         super().__init__(tag, value, None, props)
+
+    def __repr__(self):
+        return f'LeafNode("""{self.tag}""", """{self.value}""", {self.props})'
 
     def to_html(self):
         if self.value == None:
@@ -47,6 +56,9 @@ class LeafNode(HTMLNode):
 class ParentNode(HTMLNode):
     def __init__(self, tag, children, props=None):
         super().__init__(tag, None, children, props)
+
+    def __repr__(self):
+        return f'ParentNode("""{self.tag}""", {self.children}, {self.props})'
 
     def to_html(self):
         if self.tag == None:

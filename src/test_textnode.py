@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 
-from textnode import (
-    TextNode,
-    text_node_to_html_node,
-)
+from textnode import TextNode
 from htmlnode import LeafNode
 
 
@@ -56,14 +53,14 @@ class TestTextNode(unittest.TestCase):
             ),
         ]
         for text_node, expected_html_node in test_cases:
-            converted_node = text_node_to_html_node(text_node)
+            converted_node = text_node.to_html_node()
             self.assertEqual(expected_html_node, converted_node)
 
     def test_invalid_to_html_node(self):
         invalid_conversion = TextNode("Invalid node", "not a html tag")
         entered_except = False
         try:
-            text_node_to_html_node(invalid_conversion)
+            invalid_conversion.to_html_node()
         except:
             entered_except = True
         self.assertEqual(entered_except, True)

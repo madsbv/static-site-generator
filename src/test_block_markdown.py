@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import unittest
 
-from block_markdown import block_to_block_type, markdown_to_blocks
+from block_markdown import block_type, markdown_to_blocks, markdown_to_html_node
+from htmlnode import ParentNode, LeafNode
 
 
 class TestBlockMarkdown(unittest.TestCase):
@@ -78,8 +79,109 @@ This is another paragraph with *italic* text and `code` here
         ]
         for type, cases in test_cases:
             for b in cases:
-                print(b)
-                self.assertEqual(block_to_block_type(b), type)
+                self.assertEqual(block_type(b), type)
+
+    def test_markdown_to_html_node(self):
+        md = """ # A heading
+
+## A subheading
+
+> This is
+> a quote
+
+* and
+* a
+* list
+
+- and
+- another
+
+1. Time for an
+2. ordered
+3. list
+
+```
+print("Hello world")
+```
+
+And finally, this is just a normal paragraph.
+"""
+        expected = ParentNode(
+            """div""",
+            [
+                ParentNode("""h1""", [LeafNode(None, """A heading""", None)], None),
+                ParentNode("""h2""", [LeafNode(None, """A subheading""", None)], None),
+                ParentNode(
+                    """blockquote""",
+                    [
+                        LeafNode(
+                            None,
+                            """ This is
+ a quote
+""",
+                            None,
+                        )
+                    ],
+                    None,
+                ),
+                ParentNode(
+                    """ul""",
+                    [
+                        ParentNode("""li""", [LeafNode(None, """ and""", None)], None),
+                        ParentNode("""li""", [LeafNode(None, """ a""", None)], None),
+                        ParentNode("""li""", [LeafNode(None, """ list""", None)], None),
+                    ],
+                    None,
+                ),
+                ParentNode(
+                    """ul""",
+                    [
+                        ParentNode("""li""", [LeafNode(None, """ and""", None)], None),
+                        ParentNode(
+                            """li""", [LeafNode(None, """ another""", None)], None
+                        ),
+                    ],
+                    None,
+                ),
+                ParentNode(
+                    """ol""",
+                    [
+                        ParentNode(
+                            """li""",
+                            [LeafNode(None, """Time for an""", None)],
+                            None,
+                        ),
+                        ParentNode(
+                            """li""", [LeafNode(None, """ordered""", None)], None
+                        ),
+                        ParentNode("""li""", [LeafNode(None, """list""", None)], None),
+                    ],
+                    None,
+                ),
+                LeafNode(
+                    """pre""",
+                    """
+print("Hello world")
+""",
+                    None,
+                ),
+                ParentNode(
+                    """p""",
+                    [
+                        LeafNode(
+                            None,
+                            """And finally, this is just a normal paragraph.""",
+                            None,
+                        )
+                    ],
+                    None,
+                ),
+            ],
+            None,
+        )
+
+        # Correctness of "expected" verified by hand, and by outputting HTML and rendering in browser to check that we get the expected output.
+        self.assertEqual(markdown_to_html_node(md), expected)
 
 
 if __name__ == "__main__":

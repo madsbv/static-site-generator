@@ -18,28 +18,26 @@ class TextNode:
     def __repr__(self):
         return f"TextNode({self.text}, {self.text_type}, {self.url})"
 
+    def to_html_node(self):
+        tags_dict = {
+            "text": None,
+            "bold": "b",
+            "italic": "i",
+            "code": "code",
+            "link": "a",
+            "image": "img",
+        }
+        if self.text_type not in tags_dict.keys():
+            raise Exception(f"Invalid text type '{self.text_type}' in text node {self}")
 
-def text_node_to_html_node(text_node):
-    tags_dict = {
-        "text": None,
-        "bold": "b",
-        "italic": "i",
-        "code": "code",
-        "link": "a",
-        "image": "img",
-    }
-    if text_node.text_type not in tags_dict.keys():
-        raise Exception(
-            f"Invalid text type '{text_node.text_type}' in text node {text_node}"
-        )
+        tag = tags_dict[self.text_type]
 
-    tag = tags_dict[text_node.text_type]
+        props = None
+        value = self.text
+        if tag == "a":
+            props = {"href": self.url}
 
-    props = None
-    value = text_node.text
-    if tag == "a":
-        props = {"href": text_node.url}
-    if tag == "img":
-        props = {"src": text_node.url, "alt": text_node.text}
-        value = ""
-    return LeafNode(tag, value, props)
+        if tag == "img":
+            props = {"src": self.url, "alt": self.text}
+            value = ""
+        return LeafNode(tag, value, props)
