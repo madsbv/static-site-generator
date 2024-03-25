@@ -7,7 +7,21 @@ from block_markdown import extract_title, markdown_to_html_node
 
 def main():
     copy_dir("static", "public")
-    generate_page("content/index.md", "template.html", "public/index.html")
+    generate_pages_recursive("content", "template.html", "public")
+
+
+def generate_pages_recursive(content_dir, template_path, dst_dir):
+    if not os.path.isdir(content_dir):
+        raise ValueError(f"Path {content_dir} is not a directory.")
+    for entry in os.listdir(content_dir):
+        entry_path = os.path.join(content_dir, entry)
+        if os.path.isfile(entry_path) and entry.endswith(".md"):
+            entry_html = entry[:-3] + ".html"
+            entry_dst_path = os.path.join(dst_dir, entry_html)
+            generate_page(entry_path, template_path, entry_dst_path)
+        else:
+            entry_dst_path = os.path.join(dst_dir, entry)
+            generate_pages_recursive(entry_path, template_path, entry_dst_path)
 
 
 def generate_page(src, tmpl, dst):
